@@ -9,6 +9,28 @@
 
 CAADate date;
 
+std::string GetEXEPath()
+{
+  std::string ReturnString;
+
+  char path[PATH_MAX];
+  char dest[PATH_MAX];
+  memset(dest,0,sizeof(dest)); // readlink does not null terminate!
+  //struct stat info;
+  pid_t pid = getpid();
+  sprintf(path, "/proc/%d/exe", pid);
+  if (readlink(path, dest, PATH_MAX) == -1)
+    perror("readlink");
+  else {
+	// need to strip off the exe name...
+  ReturnString = dest;
+  std::size_t found = ReturnString.find_last_of("/\\");
+  ReturnString = ReturnString.substr(0,found);
+    //printf("%s\n", dest);
+  }
+  return ReturnString;
+}
+
 double GetLocalSiderealTime(double Longitude)
 {
  	struct tm *local;
@@ -65,22 +87,27 @@ std::string DecimalToDMS(double decimal)
 	std::ostringstream oss;
 
 	int Degree = decimal;
-	double minutesRemainder = abs((decimal - Degree) * 60);
+
+	double minutesRemainder = (decimal - Degree) * 60.0;
 	int minutes = minutesRemainder;
-	double secondsRemainder = abs((minutesRemainder - minutes) * 60);
-	int seconds = secondsRemainder;
-	oss << std::setfill(' ') << std::setw(3) << Degree << "° " << std::setfill('0') << std::setw(2) << minutes << "' " <<  std::setfill('0') << std::setw(2) << seconds << "\"";
+	double secondsRemainder = (minutesRemainder - minutes) * 60.0;
+	double seconds = secondsRemainder;
+
+	oss << std::setfill(' ') << std::setw(3) << Degree << "° " << std::setfill('0') << std::setw(2) << minutes << "' " <<  std::setfill('0') << std::setw(2) << std::setprecision (4) << seconds << "\"";
 
 	return oss.str();
 }
 
 mywindow::mywindow()
 {
+	ExePath = GetEXEPath();
+
+	// dialog("Hi Randy!");
 
     Glib::signal_timeout().connect( sigc::mem_fun(*this, &mywindow::on_timeout), 1000 );
 
-	MyLocation.X = 122.0464;	// Eventually pass in or use default
-	MyLocation.Y = 47.98542;
+	MyLocation.X = 122.046425;	// Eventually pass in or use default
+	MyLocation.Y = 47.985425;
 
 	double LST = GetLocalSiderealTime(MyLocation.X);
 	//std::cout << DecimalTimeToHMS(LST);

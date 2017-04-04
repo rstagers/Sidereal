@@ -24,6 +24,8 @@ class mywindow : public Gtk::Window
         mywindow();
         virtual ~mywindow();
     protected:
+        std::string ExePath;
+
         Gtk::Label *labelTextJD;
         Gtk::Label *labelJD;
 
