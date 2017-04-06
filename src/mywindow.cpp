@@ -129,15 +129,11 @@ mywindow::mywindow(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& re
     std::string Julian = oss.str();
 
     std::string Title;
-////    set_title(Title.c_str());
 
     evbox->set_events(Gdk::BUTTON_PRESS_MASK);
     evbox->signal_button_press_event().connect(
        sigc::mem_fun(*this, &mywindow::on_eventbox_button_press) );
     evbox->set_tooltip_text("Click for new Location");
-
-// I want the Location to have a frame... and
-// I want an event box around this so I can get the dialog on click to change the Lat Lon
 
     Title = DecimalToDMS(MyLocation.Y, &LatDegrees, &LatMinutes, &LatSeconds) + "N";
     labelLat->set_text(Title.c_str());
@@ -174,51 +170,17 @@ bool mywindow::on_timeout()
 // for now just trying to see how things work...
 bool mywindow::on_eventbox_button_press(GdkEventButton*)
 {
-	Gtk::Entry *pLonDeg, *pLonMin, *pLonSec, *pLatDeg, *pLatMin, *pLatSec;
-
-
 	std::cout << "In event handler!" << std::endl;
 	Glib::RefPtr<Gtk::Builder> builder = Gtk::Builder::create_from_file("src/Location.glade");
-	Gtk::Dialog* pDialog;
-	builder->get_widget("Settings", pDialog);
+
+    LocationDialog *pDialog = 0;
+    builder->get_widget_derived("Settings", pDialog);
+
 	if(pDialog) {
 		// set the parent window.
 		pDialog->set_transient_for(*this);
-// My dialog box needs to have N/S E/W for the location and the
-// Input has to be validated, if I can once the user exits a field if the field is not
-// valid... pop up a box and make them correct it...  Could use a spin maybe for the int
-// Hours and Minutes don't know about the double Seconds?
-
-// Here we need to get the widgets we need to populate and populate them...
-		builder->get_widget("entryLonDegrees", pLonDeg);
-		builder->get_widget("entryLatDegrees", pLatDeg);
-		builder->get_widget("entryLonMinutes", pLonMin);
-		builder->get_widget("entryLatMinutes", pLatMin);
-		builder->get_widget("entryLonSeconds", pLonSec);
-		builder->get_widget("entryLatSeconds", pLatSec);
-
-		// If we got them populate them...
-		if(pLonDeg) {
-			pLonDeg->set_text(std::to_string(LonDegrees));
-		}
-		if(pLatDeg){
-			pLatDeg->set_text(std::to_string(LatDegrees));
-		}
-
-		if(pLonMin) {
-			pLonMin->set_text(std::to_string(LonMinutes));
-		}
-		if(pLatMin){
-			pLatMin->set_text(std::to_string(LatMinutes));
-		}
-
-		if(pLonSec) {
-			pLonSec->set_text(std::to_string(LonSeconds));
-		}
-		if(pLatSec){
-			pLatSec->set_text(std::to_string(LatSeconds));
-		}
-
+		// Set the current data
+		pDialog->set_Data(LatDegrees, LatMinutes, LatSeconds, LonDegrees, LonMinutes, LonSeconds);
 
 		int result = pDialog->run();
 		if(result == Gtk::RESPONSE_OK)  // YOU HAVE TO SET THE BUTTON ATTRIBUTES RESPONSE ID IN GLADE to -5 FOR OK -6 CANCEL
@@ -237,6 +199,14 @@ bool mywindow::on_eventbox_button_press(GdkEventButton*)
 	}
 	return true;
 }
+
+// This worked but I need the dialog in a class and this signal part of that class...
+//bool mywindow::on_focus_outLonDeg(GdkEventFocus* ef)
+//{
+//	std::cout << "Focus Out!" << std::endl;
+//	// if the entry is out of range ... call this pLonDeg->grab_focus();
+//	return true;
+//}
 
 void mywindow::on_quit_click()
 {
