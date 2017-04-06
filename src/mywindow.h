@@ -26,6 +26,13 @@ class mywindow : public Gtk::Window
     protected:
         std::string ExePath;
 
+        Gtk::Label *labelTextLocation;
+
+        Gtk::Label *labelTextLat;
+        Gtk::Label *labelLat;
+        Gtk::Label *labelTextLon;
+        Gtk::Label *labelLon;
+
         Gtk::Label *labelTextJD;
         Gtk::Label *labelJD;
 
@@ -39,7 +46,14 @@ class mywindow : public Gtk::Window
         bool on_timeout();
         void dialog(Glib::ustring msg);
     	CAA2DCoordinate MyLocation;
+    	int LatDegrees;
+    	int LonDegrees;
+    	int LatMinutes;
+    	int LonMinutes;
+    	double LatSeconds;
+    	double LonSeconds;
 
+    	bool on_eventbox_button_press(GdkEventButton* button_event);
     private:
 };
 #endif // MYWINDOW_H

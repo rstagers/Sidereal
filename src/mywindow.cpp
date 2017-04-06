@@ -82,21 +82,21 @@ std::string PrintTime(double JD, const char* msg)
   return oss.str();
 }
 
-std::string DecimalToDMS(double decimal)
+std::string DecimalToDMS(double decimal, int *Degrees, int *Minutes, double *Seconds)
 {
 	std::ostringstream oss;
 
-	int Degree = decimal;
+	*Degrees = static_cast<int>(decimal);
 
-	double minutesRemainder = (decimal - Degree) * 60.0;
-	int minutes = minutesRemainder;
-	double secondsRemainder = (minutesRemainder - minutes) * 60.0;
-	double seconds = secondsRemainder;
+	double minutesRemainder = (decimal - *Degrees) * 60.0;
+	*Minutes = static_cast<int>(minutesRemainder);
+	*Seconds = (minutesRemainder - *Minutes) * 60.0;
 
-	oss << std::setfill(' ') << std::setw(3) << Degree << "° " << std::setfill('0') << std::setw(2) << minutes << "' " <<  std::setfill('0') << std::setw(2) << std::setprecision (4) << seconds << "\"";
+	oss << std::setfill(' ') << std::setw(3) << *Degrees << "° " << std::setfill('0') << std::setw(2) << *Minutes << "' " <<  std::setfill('0') << std::setw(2) << std::setprecision (4) << *Seconds << "\"";
 
 	return oss.str();
 }
+
 
 mywindow::mywindow()
 {
@@ -118,49 +118,92 @@ mywindow::mywindow()
     oss << std::fixed << std::setprecision(8) << date.Julian();
     std::string Julian = oss.str();
 
-    std::string Title = DecimalToDMS(MyLocation.X) + " " + DecimalToDMS(MyLocation.Y);
-    set_title(Title.c_str());
+    std::string Title;
+//    set_title(Title.c_str());
+
+    Gtk::EventBox *evbox = Gtk::manage(new Gtk::EventBox());
+    Gtk::Frame *frame = Gtk::manage(new Gtk::Frame("Your Location"));
 
     Gtk::Box *vbox = Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 0));
     add(*vbox);
+    vbox->add(*frame);
 
     Gtk::Grid *grid = Gtk::manage(new Gtk::Grid);
     grid->set_border_width(10);
     grid->set_column_homogeneous(false);
-    grid->set_column_spacing(75);
+    grid->set_column_spacing(50);
     vbox->add(*grid);
 
+    grid->attach(*evbox, 0,0,1,1);
+
+    labelTextLocation = Gtk::manage(new Gtk::Label());
+    labelTextLocation->set_text("Location");
+    labelTextLocation->set_alignment(0.0);
+    evbox->add(*labelTextLocation);
+
+    //grid->attach(*labelTextLocation, 0, 0, 1, 1);
+
+    evbox->set_events(Gdk::BUTTON_PRESS_MASK);
+    evbox->signal_button_press_event().connect(
+       sigc::mem_fun(*this, &mywindow::on_eventbox_button_press) );
+    evbox->set_tooltip_text("Click for new Location");
+
+// I want the Location to have a frame... and
+// I want an event box around this so I can get the dialog on click to change the Lat Lon
+
+    labelTextLat = Gtk::manage(new Gtk::Label());
+    labelTextLat->set_text("Latitude");
+    labelTextLat->set_alignment(1,0);
+    grid->attach(*labelTextLat, 0, 1, 1, 1);
+
+    Title = DecimalToDMS(MyLocation.Y, &LatDegrees, &LatMinutes, &LatSeconds) + "N";
+    labelLat = Gtk::manage(new Gtk::Label());
+    labelLat->set_text(Title.c_str());
+    labelLat->set_alignment(0,0);
+    grid->attach(*labelLat, 1, 1, 1, 1);
+
+    labelTextLon = Gtk::manage(new Gtk::Label());
+    labelTextLon->set_text("Longitude");
+    labelTextLon->set_alignment(1,0);
+    grid->attach(*labelTextLon, 0, 2, 1, 1);
+
+    Title = DecimalToDMS(MyLocation.X, &LonDegrees, &LonMinutes, &LonSeconds) + "W";
+
+    labelLon = Gtk::manage(new Gtk::Label());
+    labelLon->set_text(Title.c_str());
+    labelLon->set_alignment(0,0);
+    grid->attach(*labelLon, 1, 2, 1, 1);
 
     labelTextJD = Gtk::manage(new Gtk::Label());
     labelTextJD->set_text("Julian Day: ");
     labelTextJD->set_alignment(0.0);
-    grid->attach(*labelTextJD, 0, 0, 1, 1);
+    grid->attach(*labelTextJD, 0, 3, 1, 1);
 
     labelJD = Gtk::manage(new Gtk::Label());
     labelJD->set_text(Julian.c_str());
     labelJD->set_alignment(0,0);
-    grid->attach(*labelJD, 1, 0, 1, 1);
+    grid->attach(*labelJD, 1, 3, 1, 1);
 
 
     labelTextJDate = Gtk::manage(new Gtk::Label());
     labelTextJDate->set_text("Date/Time (UTC):");
     labelTextJDate->set_alignment(0.0);
-    grid->attach(*labelTextJDate, 0, 2, 1, 1);
+    grid->attach(*labelTextJDate, 0, 4, 1, 1);
 
     labelJDate = Gtk::manage(new Gtk::Label());
     labelJDate->set_text(PrintTime(date.Julian(), ""));
     labelJDate->set_alignment(0,0);
-    grid->attach(*labelJDate, 1, 2, 1, 1);
+    grid->attach(*labelJDate, 1, 4, 1, 1);
 
     labelTextST = Gtk::manage(new Gtk::Label());
     labelTextST->set_text("Local Apparent Sidereal Time: ");
     labelTextST->set_alignment(0,0);
-    grid->attach(*labelTextST, 0, 3, 1, 1);
+    grid->attach(*labelTextST, 0, 5, 1, 1);
 
     labelSTime = Gtk::manage(new Gtk::Label());
     labelSTime->set_text(DecimalTimeToHMS(LST).c_str());
     labelSTime->set_alignment(0,0);
-    grid->attach(*labelSTime, 1, 3, 1, 1);
+    grid->attach(*labelSTime, 1, 5, 1, 1);
 
     vbox->show_all();
 }
@@ -187,6 +230,74 @@ bool mywindow::on_timeout()
 }
 
 
+// I think it would be better to have a class that is the dialog...
+// for now just trying to see how things work...
+bool mywindow::on_eventbox_button_press(GdkEventButton*)
+{
+	Gtk::Entry *pLonDeg, *pLonMin, *pLonSec, *pLatDeg, *pLatMin, *pLatSec;
+
+
+	std::cout << "In event handler!" << std::endl;
+	Glib::RefPtr<Gtk::Builder> builder = Gtk::Builder::create_from_file("src/Location.glade");
+	Gtk::Dialog* pDialog;
+	builder->get_widget("Settings", pDialog);
+	if(pDialog) {
+		// set the parent window.
+		pDialog->set_transient_for(*this);
+// My dialog box needs to have N/S E/W for the location and the
+// Input has to be validated, if I can once the user exits a field if the field is not
+// valid... pop up a box and make them correct it...  Could use a spin maybe for the int
+// Hours and Minutes don't know about the double Seconds?
+
+// Here we need to get the widgets we need to populate and populate them...
+		builder->get_widget("entryLonDegrees", pLonDeg);
+		builder->get_widget("entryLatDegrees", pLatDeg);
+		builder->get_widget("entryLonMinutes", pLonMin);
+		builder->get_widget("entryLatMinutes", pLatMin);
+		builder->get_widget("entryLonSeconds", pLonSec);
+		builder->get_widget("entryLatSeconds", pLatSec);
+
+		// If we got them populate them...
+		if(pLonDeg) {
+			pLonDeg->set_text(std::to_string(LonDegrees));
+		}
+		if(pLatDeg){
+			pLatDeg->set_text(std::to_string(LatDegrees));
+		}
+
+		if(pLonMin) {
+			pLonMin->set_text(std::to_string(LonMinutes));
+		}
+		if(pLatMin){
+			pLatMin->set_text(std::to_string(LatMinutes));
+		}
+
+		if(pLonSec) {
+			pLonSec->set_text(std::to_string(LonSeconds));
+		}
+		if(pLatSec){
+			pLatSec->set_text(std::to_string(LatSeconds));
+		}
+
+
+		int result = pDialog->run();
+		if(result == Gtk::RESPONSE_OK)  // YOU HAVE TO SET THE BUTTON ATTRIBUTES RESPONSE ID IN GLADE to -5 FOR OK -6 CANCEL
+		{
+		  // Update the location variables and labels from the widgets, OK was pressed.
+		  // Also have to calculate the new MyLocation values from the entered values.
+			std::cout << "OK pressed" << std::endl;
+		}
+		else
+		{
+		  // Do nothing, Cancel was pressed...
+			std::cout << "Cancel pressed" << std::endl;
+		}
+		pDialog->close();
+		delete pDialog;
+	}
+	return true;
+}
+
 void mywindow::on_quit_click()
 {
     hide();
@@ -198,5 +309,4 @@ void mywindow::dialog(Glib::ustring msg)
     dlg.set_title("Gtkmm Tutorial 3");
     dlg.run();
 }
-
 
