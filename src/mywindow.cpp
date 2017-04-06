@@ -98,8 +98,10 @@ std::string DecimalToDMS(double decimal, int *Degrees, int *Minutes, double *Sec
 }
 
 
-mywindow::mywindow()
+mywindow::mywindow(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refGlade) :
+			Gtk::Window(cobject), builder(refGlade)
 {
+
 	ExePath = GetEXEPath();
 
 	// dialog("Hi Randy!");
@@ -114,34 +116,20 @@ mywindow::mywindow()
 
     set_default_size(400, 200);
 
+    builder->get_widget("labelLatitude", labelLat);
+    builder->get_widget("labelLongitude", labelLon);
+
+    builder->get_widget("labelSiderealTime", labelSTime);
+    builder->get_widget("labelJulianDay", labelJD);
+    builder->get_widget("labelJulianDate", labelJDate);
+    builder->get_widget("eventboxLocation", evbox);
+
     std::ostringstream oss;
     oss << std::fixed << std::setprecision(8) << date.Julian();
     std::string Julian = oss.str();
 
     std::string Title;
-//    set_title(Title.c_str());
-
-    Gtk::EventBox *evbox = Gtk::manage(new Gtk::EventBox());
-    Gtk::Frame *frame = Gtk::manage(new Gtk::Frame("Your Location"));
-
-    Gtk::Box *vbox = Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 0));
-    add(*vbox);
-    vbox->add(*frame);
-
-    Gtk::Grid *grid = Gtk::manage(new Gtk::Grid);
-    grid->set_border_width(10);
-    grid->set_column_homogeneous(false);
-    grid->set_column_spacing(50);
-    vbox->add(*grid);
-
-    grid->attach(*evbox, 0,0,1,1);
-
-    labelTextLocation = Gtk::manage(new Gtk::Label());
-    labelTextLocation->set_text("Location");
-    labelTextLocation->set_alignment(0.0);
-    evbox->add(*labelTextLocation);
-
-    //grid->attach(*labelTextLocation, 0, 0, 1, 1);
+////    set_title(Title.c_str());
 
     evbox->set_events(Gdk::BUTTON_PRESS_MASK);
     evbox->signal_button_press_event().connect(
@@ -151,61 +139,13 @@ mywindow::mywindow()
 // I want the Location to have a frame... and
 // I want an event box around this so I can get the dialog on click to change the Lat Lon
 
-    labelTextLat = Gtk::manage(new Gtk::Label());
-    labelTextLat->set_text("Latitude");
-    labelTextLat->set_alignment(1,0);
-    grid->attach(*labelTextLat, 0, 1, 1, 1);
-
     Title = DecimalToDMS(MyLocation.Y, &LatDegrees, &LatMinutes, &LatSeconds) + "N";
-    labelLat = Gtk::manage(new Gtk::Label());
     labelLat->set_text(Title.c_str());
-    labelLat->set_alignment(0,0);
-    grid->attach(*labelLat, 1, 1, 1, 1);
-
-    labelTextLon = Gtk::manage(new Gtk::Label());
-    labelTextLon->set_text("Longitude");
-    labelTextLon->set_alignment(1,0);
-    grid->attach(*labelTextLon, 0, 2, 1, 1);
-
     Title = DecimalToDMS(MyLocation.X, &LonDegrees, &LonMinutes, &LonSeconds) + "W";
-
-    labelLon = Gtk::manage(new Gtk::Label());
     labelLon->set_text(Title.c_str());
-    labelLon->set_alignment(0,0);
-    grid->attach(*labelLon, 1, 2, 1, 1);
-
-    labelTextJD = Gtk::manage(new Gtk::Label());
-    labelTextJD->set_text("Julian Day: ");
-    labelTextJD->set_alignment(0.0);
-    grid->attach(*labelTextJD, 0, 3, 1, 1);
-
-    labelJD = Gtk::manage(new Gtk::Label());
     labelJD->set_text(Julian.c_str());
-    labelJD->set_alignment(0,0);
-    grid->attach(*labelJD, 1, 3, 1, 1);
-
-
-    labelTextJDate = Gtk::manage(new Gtk::Label());
-    labelTextJDate->set_text("Date/Time (UTC):");
-    labelTextJDate->set_alignment(0.0);
-    grid->attach(*labelTextJDate, 0, 4, 1, 1);
-
-    labelJDate = Gtk::manage(new Gtk::Label());
     labelJDate->set_text(PrintTime(date.Julian(), ""));
-    labelJDate->set_alignment(0,0);
-    grid->attach(*labelJDate, 1, 4, 1, 1);
-
-    labelTextST = Gtk::manage(new Gtk::Label());
-    labelTextST->set_text("Local Apparent Sidereal Time: ");
-    labelTextST->set_alignment(0,0);
-    grid->attach(*labelTextST, 0, 5, 1, 1);
-
-    labelSTime = Gtk::manage(new Gtk::Label());
     labelSTime->set_text(DecimalTimeToHMS(LST).c_str());
-    labelSTime->set_alignment(0,0);
-    grid->attach(*labelSTime, 1, 5, 1, 1);
-
-    vbox->show_all();
 }
 
 mywindow::~mywindow()

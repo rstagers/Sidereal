@@ -37,19 +37,20 @@ User active build configuration
 
 // Added library aalib (debug)
 
-#include <gtkmm-3.0/gtkmm.h>
+#include <gtkmm.h>
 
 #include "mywindow.h"
 
 
 int main(int argc, char** argv) {
 
+	Gtk::Main kit(argc, argv);
+	Glib::RefPtr<Gtk::Builder> builder = Gtk::Builder::create_from_file("src/MainWindow.glade");
 
-    Glib::RefPtr<Gtk::Application> app = Gtk::Application::create(argc, argv, "com.gtkmm.k9vd.base");
+    mywindow *window = 0;
+    builder->get_widget_derived("window1", window);
 
-    mywindow window;
-
-    return app->run(window);
+    kit.run(*window);
 
 	return 0;
 }

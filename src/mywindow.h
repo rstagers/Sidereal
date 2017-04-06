@@ -21,26 +21,20 @@
 class mywindow : public Gtk::Window
 {
     public:
-        mywindow();
+        mywindow(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refGlade);//constructor);
         virtual ~mywindow();
     protected:
+        Glib::RefPtr<Gtk::Builder> builder;
+
         std::string ExePath;
 
-        Gtk::Label *labelTextLocation;
-
-        Gtk::Label *labelTextLat;
+        Gtk::EventBox *evbox;
         Gtk::Label *labelLat;
-        Gtk::Label *labelTextLon;
         Gtk::Label *labelLon;
-
-        Gtk::Label *labelTextJD;
         Gtk::Label *labelJD;
-
-        Gtk::Label *labelTextJDate;
         Gtk::Label *labelJDate;
-
-        Gtk::Label *labelTextST;
         Gtk::Label *labelSTime;
+
 
         void on_quit_click();
         bool on_timeout();
