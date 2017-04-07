@@ -110,6 +110,8 @@ mywindow::mywindow(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& re
 
 	MyLocation.X = 122.046425;	// Eventually pass in or use default
 	MyLocation.Y = 47.985425;
+	LatNS = 0;
+	LonEW = 1;
 
 	double LST = GetLocalSiderealTime(MyLocation.X);
 	//std::cout << DecimalTimeToHMS(LST);
@@ -135,9 +137,9 @@ mywindow::mywindow(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& re
        sigc::mem_fun(*this, &mywindow::on_eventbox_button_press) );
     evbox->set_tooltip_text("Click for new Location");
 
-    Title = DecimalToDMS(MyLocation.Y, &LatDegrees, &LatMinutes, &LatSeconds) + "N";
+    Title = DecimalToDMS(MyLocation.Y, &LatDegrees, &LatMinutes, &LatSeconds) + ((LatNS) ? "S" : "N");
     labelLat->set_text(Title.c_str());
-    Title = DecimalToDMS(MyLocation.X, &LonDegrees, &LonMinutes, &LonSeconds) + "W";
+    Title = DecimalToDMS(MyLocation.X, &LonDegrees, &LonMinutes, &LonSeconds) + ((LonEW) ? "W" : "E");
     labelLon->set_text(Title.c_str());
     labelJD->set_text(Julian.c_str());
     labelJDate->set_text(PrintTime(date.Julian(), ""));
@@ -180,7 +182,7 @@ bool mywindow::on_eventbox_button_press(GdkEventButton*)
 		// set the parent window.
 		pDialog->set_transient_for(*this);
 		// Set the current data
-		pDialog->set_Data(LatDegrees, LatMinutes, LatSeconds, LonDegrees, LonMinutes, LonSeconds);
+		pDialog->set_Data(LatDegrees, LatMinutes, LatSeconds, LonDegrees, LonMinutes, LonSeconds, LatNS, LonEW);
 
 		int result = pDialog->run();
 		if(result == Gtk::RESPONSE_OK)  // YOU HAVE TO SET THE BUTTON ATTRIBUTES RESPONSE ID IN GLADE to -5 FOR OK -6 CANCEL
@@ -188,6 +190,23 @@ bool mywindow::on_eventbox_button_press(GdkEventButton*)
 		  // Update the location variables and labels from the widgets, OK was pressed.
 		  // Also have to calculate the new MyLocation values from the entered values.
 			std::cout << "OK pressed" << std::endl;
+			pDialog->get_Data(&LatDegrees, &LatMinutes, &LatSeconds, &LonDegrees, &LonMinutes, &LonSeconds, &LatNS, &LonEW);
+			// Calculate the decimal from Degrees Minutes and Seconds...
+			MyLocation.X = LonDegrees + (LonMinutes + (LonSeconds /60.0)) / 60.0;
+			MyLocation.Y = LatDegrees + (LatMinutes + (LatSeconds /60.0)) / 60.0;
+			if(LatNS)
+				MyLocation.Y = -MyLocation.Y;
+			if(!LonEW)
+				MyLocation.X = -MyLocation.X;
+
+
+			// Need a N/S E/W inut on the dialog...  S and E are negitive numbers
+			std::string Title;
+		    Title = DecimalToDMS(std::abs(MyLocation.Y), &LatDegrees, &LatMinutes, &LatSeconds) + ((LatNS) ? "S" : "N");
+		    labelLat->set_text(Title.c_str());
+		    Title = DecimalToDMS(std::abs(MyLocation.X), &LonDegrees, &LonMinutes, &LonSeconds) + ((LonEW) ? "W" : "E");
+		    labelLon->set_text(Title.c_str());
+
 		}
 		else
 		{

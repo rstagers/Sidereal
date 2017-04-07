@@ -49,6 +49,8 @@ class mywindow : public Gtk::Window
     	int LonMinutes;
     	double LatSeconds;
     	double LonSeconds;
+    	bool LatNS;
+    	bool LonEW;
 
     	bool on_eventbox_button_press(GdkEventButton* button_event);
     	bool on_focus_outLonDeg(GdkEventFocus* ef);

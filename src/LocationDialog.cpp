@@ -6,7 +6,7 @@
  */
 
 #include "LocationDialog.h"
-
+#include <cmath>
 
 LocationDialog::LocationDialog(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refGlade) :
 Gtk::Dialog(cobject), builder(refGlade) {
@@ -26,6 +26,8 @@ Gtk::Dialog(cobject), builder(refGlade) {
 	builder->get_widget("entryLatMinutes", pLatMin);
 	builder->get_widget("entryLonSeconds", pLonSec);
 	builder->get_widget("entryLatSeconds", pLatSec);
+	builder->get_widget("comboboxtext1", pComboLat);
+	builder->get_widget("comboboxtext2", pComboLon);
 
 	// If we got them populate them...
 	if(pLonDeg) {

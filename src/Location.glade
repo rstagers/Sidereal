@@ -153,6 +153,7 @@
                         <property name="valign">start</property>
                         <property name="max_length">3</property>
                         <property name="width_chars">4</property>
+                        <property name="max_width_chars">3</property>
                         <property name="input_purpose">digits</property>
                       </object>
                       <packing>
@@ -166,6 +167,7 @@
                         <property name="can_focus">True</property>
                         <property name="max_length">2</property>
                         <property name="width_chars">3</property>
+                        <property name="max_width_chars">2</property>
                         <property name="input_purpose">digits</property>
                       </object>
                       <packing>
@@ -179,10 +181,26 @@
                         <property name="can_focus">True</property>
                         <property name="max_length">5</property>
                         <property name="width_chars">5</property>
+                        <property name="max_width_chars">4</property>
                         <property name="input_purpose">number</property>
                       </object>
                       <packing>
                         <property name="left_attach">5</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkComboBoxText" id="comboboxtext1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="active">0</property>
+                        <items>
+                          <item translatable="yes">N</item>
+                          <item translatable="yes">S</item>
+                        </items>
+                      </object>
+                      <packing>
+                        <property name="left_attach">6</property>
                         <property name="top_attach">0</property>
                       </packing>
                     </child>
@@ -259,6 +277,7 @@
                         <property name="can_focus">True</property>
                         <property name="max_length">3</property>
                         <property name="width_chars">4</property>
+                        <property name="max_width_chars">3</property>
                         <property name="input_purpose">digits</property>
                       </object>
                       <packing>
@@ -272,6 +291,7 @@
                         <property name="can_focus">True</property>
                         <property name="max_length">2</property>
                         <property name="width_chars">3</property>
+                        <property name="max_width_chars">2</property>
                         <property name="input_purpose">digits</property>
                       </object>
                       <packing>
@@ -285,10 +305,26 @@
                         <property name="can_focus">True</property>
                         <property name="max_length">5</property>
                         <property name="width_chars">5</property>
+                        <property name="max_width_chars">4</property>
                         <property name="input_purpose">number</property>
                       </object>
                       <packing>
                         <property name="left_attach">5</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkComboBoxText" id="comboboxtext2">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="active">0</property>
+                        <items>
+                          <item translatable="yes">E</item>
+                          <item translatable="yes">W</item>
+                        </items>
+                      </object>
+                      <packing>
+                        <property name="left_attach">6</property>
                         <property name="top_attach">0</property>
                       </packing>
                     </child>
