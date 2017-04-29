@@ -110,8 +110,8 @@ mywindow::mywindow(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& re
 
 	MyLocation.X = 122.046425;	// Eventually pass in or use default
 	MyLocation.Y = 47.985425;
-	LatNS = 0;
-	LonEW = 1;
+	LatNS = 0;					// N
+	LonEW = 1;					// W
 
 	double LST = GetLocalSiderealTime(MyLocation.X);
 	//std::cout << DecimalTimeToHMS(LST);

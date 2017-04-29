@@ -15,6 +15,7 @@
 #include <iomanip>
 #include <string>
 #include "LocationDialog.h"
+#include <cairommconfig.h>
 
 #define _USE_MATH_DEFINES
 #include "AA+.h"			// Added /home/randy/Astronomy/AA+_Meeus_Debug for the header files needed.
